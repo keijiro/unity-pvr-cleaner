@@ -12,15 +12,15 @@ iOS や一部の Android 端末で用いられているテクスチャ圧縮形�
 
 ![Original](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Original.png)
 
-これを PVRTC (Quality=Best) で圧縮すると、下のようにノイズがのりました。左の画像はアルファチャンネルの状態を表します。
+これを PVRTC (Quality=Best) で圧縮すると、下のようにノイズがのりました（右の画像はアルファチャンネルの状態を表します）。
 
 ![Dirty](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Dirty.png)![Dirty (alpha)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Mask Dirty.png)
 
 特に汚い左下部分を拡大してみます。
 
-![Dirty (enlarged)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Dirty Zoom.png)![Dirty (enlarged)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Mask Dirty Zoom.png)
+![Dirty (enlarged)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Dirty Zoom.png)![Dirty (enlarged, alpha)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Mask Dirty Zoom.png)
 
-どう考えてもおかしなレベルのノイズがのっています。
+本来透明であるべき領域に、薄くゴミのように不透明なドットが生じてしまっているのが分かります。画像下端には、薄くライン状のノイズ（？）も生じています。これらのゴミには妙な色（黄色）が付いているのも気になるところです。
 
 ノイズの原因
 ------------
@@ -31,9 +31,9 @@ iOS や一部の Android 端末で用いられているテクスチャ圧縮形�
 
 ![No Alpha](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/No Alpha.png)
 
-透明の部分（アルファが 0% の領域）におかしな色が混じっています。どうしてこのような色が入ってしまうのか理由は分かりませんが、特に Photoshop から PNG を出力した場合に、このような状態になっていることが多いように思われます。
+透明の部分（アルファが 0% の領域）におかしな色が混じっています。どうしてこのような色が入ってしまうのか理由は分かりませんが、特に Photoshop から PNG を出力した場合に、このような状態になっていることが多いように感じられます。
 
-この「透明の部分の色成分」が PVRTC 圧縮に悪影響を及ぼしていることは明らかです。
+この「透明の部分の色成分」が PVRTC 圧縮に悪影響を及ぼしていることは想像に難くありません。恐らくはこの「おかしな色」の影響を受ける形で、透明部分にゴミが生じてしまっているのでしょう。また、画像下端に生じたライン状のノイズは、ラップラウンドした画像上端の領域と相互に影響を及ぼすことで発生しているのだと推測できます。
 
 透明部分の塗り潰しによる改善
 ----------------------------
@@ -42,20 +42,20 @@ iOS や一部の Android 端末で用いられているテクスチャ圧縮形�
 
 [Assets/Editor/TextureModifier.cs](https://github.com/keijiro/unity-pvr-cleaner/blob/master/Assets/Editor/TextureModifier.cs)
 
-処理の内容はシンプルで、AssetPostprocessor を使ってテクスチャのインポート処理をオーバーライドしています。その中で、「もしアルファ値が 0% だったら (50%, 50%, 50%, 0%) の色で置き換える」という処理を行っています。
+スクリプトの内容はシンプルで、AssetPostprocessor を使ってテクスチャのインポート処理をオーバーライドしています。その中で「もしアルファ値が 0% だったら (50%, 50%, 50%, 0%) の色で置き換える」という処理を行っています。
 
 下の画像は、このスクリプトを適用して得られたものです。
 
-![Clean](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Clean.png)
+![Clean](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Clean.png)![Clean (alpha)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Mask Clean.png)
 
-左下部分を拡大すると、キワのノイズがかなり改善されていることが分かります。
+左下部分を拡大すると、透明部分のゴミのようなノイズがかなり改善されていることが分かります。
 
-![Clean (enlarged)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Clean Zoom.png)
+![Clean (enlarged)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Clean Zoom.png)![Clean (enlarged, alpha)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Mask Clean Zoom.png)
 
 今後の課題
 ----------
 
-ここでは「最も無難な色」として (50%, 50%, 50%, 0%) を使用しましたが、これが不透明部分に悪影響を与えている可能性もあります。現に上の例では、透明部分のノイズは除去されたものの、不透明部分（キワの内側）については僅かに画質が劣化しているようにも思われます。
+ここでは「最も無難な色」として (50%, 50%, 50%, 0%) を使用しましたが、これが不透明部分に悪影響を与えている可能性もあります。現に上の例では、透明部分のノイズは除去されたものの、不透明部分（キワの内側）については僅かに画質が劣化しているようにも感じられます。また、不透明部分が透明に近づくという、逆効果（？）のノイズも新たに発生しているようです。
 
 この問題は、PVRTC の圧縮アルゴリズムを考慮に入れたうえで、不透明部分への影響の少ない色を適切に選択すれば、改善が可能かもしれません。
 
