@@ -12,13 +12,13 @@ iOS や一部の Android 端末で用いられているテクスチャ圧縮形�
 
 ![Original](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Original.png)
 
-これを PVRTC (Quality=Best) で圧縮すると、下のようにノイズがのりました。
+これを PVRTC (Quality=Best) で圧縮すると、下のようにノイズがのりました。左の画像はアルファチャンネルの状態を表します。
 
-![Dirty](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Dirty.png)
+![Dirty](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Dirty.png)![Dirty (alpha)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Mask Dirty.png)
 
 特に汚い左下部分を拡大してみます。
 
-![Dirty (enlarged)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Dirty Zoom.png)
+![Dirty (enlarged)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Dirty Zoom.png)![Dirty (enlarged)](https://github.com/keijiro/unity-pvr-cleaner/raw/gh-pages/Mask Dirty Zoom.png)
 
 どう考えてもおかしなレベルのノイズがのっています。
 
